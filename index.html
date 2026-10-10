@@ -154,6 +154,18 @@ footer.foot a:hover { color:var(--blue); }
   .ch { width:26px; height:32px; }
 }
 @media (prefers-reduced-motion:reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
+@supports (view-transition-name: root) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 2; }
+  html.theme-closing::view-transition-old(root) { z-index: 2; }
+  html.theme-closing::view-transition-new(root) { z-index: 1; }
+}
 </style>
 </head>
 <body>
@@ -241,7 +253,51 @@ const TEMAS = ["Todos","Fundamentos","Strings","Arquivos e memória","Bits e flo
   const t = document.querySelector('.theme-toggle');
   try { if (localStorage.getItem('portfolio-theme') === 'dark') document.body.classList.add('dark-mode'); } catch(e){}
   const upd = () => { const d = document.body.classList.contains('dark-mode'); t.setAttribute('aria-label', d ? 'Ativar modo claro' : 'Ativar modo escuro'); t.setAttribute('title', d ? 'Ativar modo claro' : 'Ativar modo escuro'); };
-  t.addEventListener('click', () => { document.body.classList.toggle('dark-mode'); try { localStorage.setItem('portfolio-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e){} upd(); });
+  t.addEventListener('click', () => {
+    const switchTheme = () => {
+      document.body.classList.toggle('dark-mode');
+      try { localStorage.setItem('portfolio-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e){}
+      upd();
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        typeof document.startViewTransition !== 'function') {
+      switchTheme();
+      return;
+    }
+
+    const isDark = document.body.classList.contains('dark-mode');
+    const rect = t.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    if (isDark) {
+      document.documentElement.classList.add('theme-closing');
+    }
+
+    const transition = document.startViewTransition(switchTheme);
+    transition.ready.then(() => {
+      const animation = document.documentElement.animate(
+        {
+          clipPath: isDark
+            ? [`circle(${radius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`]
+            : [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`]
+        },
+        {
+          duration: 1800,
+          easing: 'cubic-bezier(.22,1,.36,1)',
+          pseudoElement: isDark ? '::view-transition-old(root)' : '::view-transition-new(root)'
+        }
+      );
+      return animation.finished;
+    }).catch(() => {}).finally(() => {
+      document.documentElement.classList.remove('theme-closing');
+    });
+  });
   upd();
 })();
 
