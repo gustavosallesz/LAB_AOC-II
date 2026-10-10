@@ -1,9 +1,9 @@
 # Este programa lê um arquivo até os 1024 primeiros bytes (caracteres)
-# O arquivo deve estar na pasta de instalação do Mars caso não seja
-# indicado o caminho completo 
+# Coloque arquivo.txt no diretorio de trabalho do MARS.
+# Altere o nome abaixo se quiser usar outro arquivo.
 #
 .data  
-arquivo: .asciiz "C:\\Users\\SUPORTE ICONIC\\OneDrive - sga.pucminas.br\\3º SEMESTRE\\LAB_AOC-2\\20250306-LeituraDeArquivos\\arquivo.txt"      # nome do arquivo
+arquivo: .asciiz "arquivo.txt"      # arquivo no diretorio de trabalho do MARS
 buffer: .space 1024
 
 .text

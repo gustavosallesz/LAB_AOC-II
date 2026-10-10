@@ -1,7 +1,7 @@
 .data  
 
-origem: .asciiz "D:\\OneDrive - sga.pucminas.br\\3º SEMESTRE\\LAB_AOC-2\\arquivo.txt"      
-destino: .asciiz "D:\\OneDrive - sga.pucminas.br\\3º SEMESTRE\\LAB_AOC-2\\arquivo2.txt"      
+origem: .asciiz "arquivo.txt"
+destino: .asciiz "arquivo2.txt"
 buffer: .space 1024  
 
 .text
